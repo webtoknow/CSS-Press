@@ -109,12 +109,15 @@
   position: relative;
   height: auto;
   background: $color-white;
+  border-left: 2px solid $color-grey-450;
   border-right: 2px solid $color-grey-450;
   box-shadow: 0 0 5px 2px $color-grey-450;
   padding: 5px 3px 0 3px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 
   &:hover {
-    border-right-color: $color-orange-400;
+    border-color: $color-orange-400;
     box-shadow: 0 0 5px 2px $color-orange-400;
 
     &:before {

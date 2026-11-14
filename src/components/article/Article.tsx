@@ -37,7 +37,7 @@ const Article = function Article(props: ArticleProps) {
     onMisprintHoverChange
   } = props;
 
-  const highlighted = hoveredSelector === "misprint" ? "box-shadow: 0 0 5px 2px #f78d2e; border-right-color: #f78d2e;" : "";
+  const highlighted = hoveredSelector === "misprint" ? "box-shadow: 0 0 5px 2px #f78d2e; border-color: #f78d2e;" : "";
   const highlightedBefore = hoveredSelector === "misprint" ? "background-color: #f78d2e;" : "";
   const style = `.article__body .misprint { ${errorStyle} ${answerStyle}} .article__body .ripped-effect {${highlighted}} .article__body .ripped-effect:before {${highlightedBefore}}`
   const additionalStyle = `.article__body ${extraStyle}`
