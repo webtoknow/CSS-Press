@@ -1,13 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, useLocation, useParams, useNavigate } from "react-router-dom";
 
-import Instructions from "../../components/instructions/Instructions";
-import Code from "../../components/code/Code";
-import Article from "../../components/article/Article";
-
 import "./GamePage.scss";
 import { getGameInfo } from "../../utils/helpers";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import Modal from "../../components/modal/Modal";
 import { createPortal } from "react-dom";
 import GameTutorial from "../../components/tutorial/game-tutorial/GameTutorial";
@@ -16,9 +11,9 @@ import { TutorialMachineStates } from "../../machines/tutorialMachine";
 import { localStorageNames } from "../../utils/constants";
 import { chapters } from "../../const/chapters";
 import { TutorialMachineContext } from "../../machines/TutorialMachineContext";
+import GameLevel from "./GameLevel";
 
 function GamePage() {
-
   const { send } = TutorialMachineContext.useActorRef();
   const currentTutorialState = TutorialMachineContext.useSelector((state) => state);
 
@@ -33,12 +28,6 @@ function GamePage() {
     [chapterNumberParam, levelNumberParam]
   );
 
-  const [answer, setAnswer] = useLocalStorage<string>(localStorageNames.getLevelAnswer(chapterNumber || '', levelNumber || ''), "");
-
-  const [hoveredSelector, setHoveredSelector] = useState("");
-  const [isArticleMisprintHovered, setIsArticleMisprintHovered] = useState(false);
-  const [isArticleSliding, setIsArticleSliding] = useState(false);
-  const [isLevelResolved, setIsLevelResolved] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Save tutorial state to local storage
@@ -57,19 +46,10 @@ function GamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, currentTutorialState, isModalOpen]);
 
-
-  useEffect(() => {
-    if (location.pathname === '/chapter/1/level/2') {
-      send({ type: 'NEXT' });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isArticleSliding]);
-
   const showTutorialModal = () => {
     window.setTimeout(() => {
       setIsModalOpen(true);
     }, 3100);
-
   }
 
   const startTutorial = () => {
@@ -83,62 +63,27 @@ function GamePage() {
     send({ type: 'FINISHED' });
   }
 
-  if (currentChapter === null || currentLevel === null) {
+  if (
+    currentChapter === null ||
+    currentLevel === null ||
+    chapterNumber === null ||
+    levelNumber === null
+  ) {
     return <Navigate replace to="/not-found" />;
   }
 
   const { chapterName } = currentChapter;
-  const {
-    levelName,
-    instructions,
-    beforeCode,
-    afterCode,
-    linesOfCode,
-    startHighlightCode,
-    articleContent,
-    error,
-    solutions,
-    tipInfo,
-    tipSelector,
-    extraStyle
-  } = currentLevel;
 
   return (
     <section className="game">
-      <Instructions
+      <GameLevel
+        key={`${chapterNumber}-${levelNumber}`}
+        level={currentLevel}
         chapterName={chapterName}
-        levelName={levelName}
-        instructionsContent={instructions}
-      />
-      <Code
-        beforeCode={beforeCode}
-        afterCode={afterCode}
-        linesOfCode={linesOfCode}
-        startHighlightCode={startHighlightCode}
-        answer={answer}
-        setAnswer={setAnswer}
-        setHoveredSelector={setHoveredSelector}
-        solutions={solutions}
-        chapterNumber={chapterNumber || null}
-        levelNumber={levelNumber || null}
+        chapterNumber={chapterNumber}
+        levelNumber={levelNumber}
         nextChapterNumber={nextChapterNumber}
         nextLevelNumber={nextLevelNumber}
-        setIsArticleSliding={setIsArticleSliding}
-        isArticleSliding={isArticleSliding}
-        setIsLevelResolved={setIsLevelResolved}
-        isSelectorHighlighted={isArticleMisprintHovered}
-      />
-      <Article
-        articleContent={articleContent}
-        answerStyle={answer}
-        errorStyle={error}
-        hoveredSelector={hoveredSelector}
-        isArticleSliding={isArticleSliding}
-        isLevelResolved={isLevelResolved}
-        tipInfo={tipInfo}
-        tipSelector={tipSelector}
-        extraStyle={extraStyle}
-        onMisprintHoverChange={setIsArticleMisprintHovered}
       />
 
       {/* Tutorial */}

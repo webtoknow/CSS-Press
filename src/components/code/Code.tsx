@@ -1,110 +1,39 @@
 import "./Code.scss";
 import { maxCodeLineNumbers } from "../../const/chapters";
-import { Dispatch, SetStateAction, useEffect, useRef, useState, type JSX } from "react";
-import { useNavigate } from "react-router-dom";
-import { buildSolutionsArray, getCodeLineNumbers, isSolutionCorrect } from "../../utils/helpers";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
-import { TutorialMachineStates } from "../../machines/tutorialMachine";
-import { createPortal } from "react-dom";
-import Modal from "../modal/Modal";
-import { localStorageNames } from "../../utils/constants";
-import { TutorialMachineContext } from "../../machines/TutorialMachineContext";
+import { type ChangeEvent, type JSX, type KeyboardEvent } from "react";
+import { getCodeLineNumbers } from "../../utils/helpers";
 
 interface CodeProps {
   beforeCode: string;
   afterCode: string;
   linesOfCode: number;
   startHighlightCode: number;
-  setAnswer: Dispatch<SetStateAction<string>>;
-  setHoveredSelector: Dispatch<SetStateAction<string>>;
   answer: string;
-  solutions: string[][];
-  chapterNumber: number | null;
-  levelNumber: number | null;
-  nextChapterNumber: number | null;
-  nextLevelNumber: number | null;
-  isArticleSliding: boolean;
-  setIsArticleSliding: Dispatch<SetStateAction<boolean>>;
-  setIsLevelResolved: Dispatch<SetStateAction<boolean>>;
+  onAnswerChange: (answer: string) => void;
+  onCheck: () => void;
+  isWrongAnswer: boolean;
+  isCodeShaking: boolean;
+  isNextButtonPulsing: boolean;
   isSelectorHighlighted: boolean;
+  onEditorHoverChange: (isHovered: boolean) => void;
+  isLastLevel: boolean;
 }
 
-function Code(props: CodeProps) {
-  const {
-    beforeCode,
-    afterCode,
-    linesOfCode,
-    startHighlightCode,
-    answer,
-    setAnswer,
-    setHoveredSelector,
-    solutions,
-    chapterNumber,
-    levelNumber,
-    nextChapterNumber,
-    nextLevelNumber,
-    isArticleSliding,
-    setIsArticleSliding,
-    setIsLevelResolved,
-    isSelectorHighlighted,
-  } = props;
-
-  const navigate = useNavigate();
-
-  const { send } = TutorialMachineContext.useActorRef();
-  const currentTutorialState = TutorialMachineContext.useSelector((state) => state);
-
-  const [isNextButtonPulsing, setIsNextButtonPulsing] = useState(false);
-  const [isCodeShaking, setIsCodeShaking] = useState(false);
-  const [isWrongAnswer, setIsWrongAnswer] = useState(false);
-  const [isGameComplete, setIsGameComplete] = useState(false);
-
-  const setIsLevelSolved = useLocalStorage<string>(
-    localStorageNames.getIsLevelSolved(chapterNumber || '', levelNumber || ''),
-    "false"
-  )[1];
-
-  useEffect(() => {
-    if (isWrongAnswer) {
-      setIsWrongAnswer(false);
-    }
-
-    if (isSolutionCorrect(solutionsArray, answer)) {
-      setIsNextButtonPulsing(true);
-      setIsLevelSolved("true");
-      setIsLevelResolved(true);
-
-      // If solution for the first level is correct, go to the next tutorial step
-      if (chapterNumber === 1
-        && levelNumber === 1 
-        && currentTutorialState.matches(TutorialMachineStates.write)) {
-        send({ type: 'NEXT' });
-      }
-      return;
-    }
-
-    if (isNextButtonPulsing === true) {
-      setIsNextButtonPulsing(false);
-      setIsLevelSolved("false");
-      setIsLevelResolved(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [answer])
-
-  const shakeTimeoutRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (isCodeShaking === false) {
-      window.clearTimeout(shakeTimeoutRef.current || 0);
-    }
-  }, [isCodeShaking]);
-
-  const slideTimeoutRef = useRef<number | null>(null);
-  useEffect(() => {
-    if (isArticleSliding === false) {
-      window.clearTimeout(slideTimeoutRef.current || 0);
-    }
-  }, [isArticleSliding]);
-
+function Code({
+  beforeCode,
+  afterCode,
+  linesOfCode,
+  startHighlightCode,
+  answer,
+  onAnswerChange,
+  onCheck,
+  isWrongAnswer,
+  isCodeShaking,
+  isNextButtonPulsing,
+  isSelectorHighlighted,
+  onEditorHoverChange,
+  isLastLevel,
+}: CodeProps) {
   const codeLineNumbers: JSX.Element[] = getCodeLineNumbers(
     startHighlightCode,
     linesOfCode,
@@ -113,89 +42,26 @@ function Code(props: CodeProps) {
 
   const calculatedCodeHeight = linesOfCode * 24;
 
-  const solutionsArray = buildSolutionsArray(solutions);
-
   const handleChangeAnswer = (
-    e:
-      | React.ChangeEvent<HTMLTextAreaElement>
-      | React.ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setAnswer(e.target.value);
+    onAnswerChange(event.target.value);
   };
 
-  const handleEditorMouseEnter = () => {
-    setHoveredSelector("misprint");
-  };
-
-  const handleEditorMouseLeave = () => {
-    setHoveredSelector("");
-  };
-
-  const checkAnswer = () => {
-
-    // If the tutorial is not finished, don't check the answer
-    if (!currentTutorialState.matches(TutorialMachineStates.finished) && !currentTutorialState.matches(TutorialMachineStates.complete)) {
+  const handleKeyDownCheckAnswer = (
+    event: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (event.key !== "Enter") {
       return;
     }
 
-    if (isSolutionCorrect(solutionsArray, answer) && nextChapterNumber && nextLevelNumber) {
-      goToNextLevelAndSlideOutArticle();
-    } else {
-      shakeCodeBox();
-      setIsWrongAnswer(true);
-    }
-  };
+    const noLinesInTextarea = answer
+      .split(/\r|\r\n|\n/)
+      .filter((line) => line !== "").length;
 
-  const shakeCodeBox = () => {
-    setIsCodeShaking(true);
-    shakeTimeoutRef.current = window.setTimeout(
-      () => setIsCodeShaking(false),
-      800
-    );
-  };
-
-  const goToNextLevelAndSlideOutArticle = () => {
-    setIsArticleSliding(true);
-    slideTimeoutRef.current = window.setTimeout(() => {
-      setIsNextButtonPulsing(false);
-      setIsArticleSliding(false);
-      navigate(`/chapter/${nextChapterNumber}/level/${nextLevelNumber}`);
-    }, 800);
-  };
-
-  const handleKeyPressCheckAnswer = (
-    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) => {
-    if (event.key === "Enter") {
-      const noLinesInTextarea = answer.split(/\r|\r\n|\n/).filter((a) => a !== "").length;
-      if (noLinesInTextarea >= linesOfCode) {
-        if (nextChapterNumber) {
-          checkAnswer();
-        } else {
-          finish();
-        }
-
-        event.preventDefault();
-      }
-    }
-  };
-
-  const goToDashboard = () => {
-    navigate(`/`);
-  }
-
-  const finish = () => {
-
-    // If the tutorial is not finished, don't check the answer
-    if (!currentTutorialState.matches(TutorialMachineStates.finished) && !currentTutorialState.matches(TutorialMachineStates.complete)) {
-      return;
-    }
-
-    if (isSolutionCorrect(solutionsArray, answer)) {
-      setIsGameComplete(true);
-    } else {
-      shakeCodeBox();
-      setIsWrongAnswer(true);
+    if (noLinesInTextarea >= linesOfCode) {
+      onCheck();
+      event.preventDefault();
     }
   };
 
@@ -210,8 +76,8 @@ function Code(props: CodeProps) {
       <ul className="code__numbers">{codeLineNumbers}</ul>
       <article
         className="code__focus"
-        onMouseEnter={handleEditorMouseEnter}
-        onMouseLeave={handleEditorMouseLeave}
+        onMouseEnter={() => onEditorHoverChange(true)}
+        onMouseLeave={() => onEditorHoverChange(false)}
       >
         <p
           className={
@@ -221,7 +87,7 @@ function Code(props: CodeProps) {
           }
           dangerouslySetInnerHTML={{ __html: beforeCode }}
         ></p>
-        {linesOfCode === 1 && (
+        {linesOfCode === 1 ? (
           <input
             id="code"
             className={
@@ -231,10 +97,9 @@ function Code(props: CodeProps) {
             style={{ height: calculatedCodeHeight + "px" }}
             value={answer}
             onChange={handleChangeAnswer}
-            onKeyPress={handleKeyPressCheckAnswer}
+            onKeyDown={handleKeyDownCheckAnswer}
           ></input>
-        )}
-        {linesOfCode > 1 && (
+        ) : (
           <textarea
             id="code"
             className={
@@ -246,7 +111,7 @@ function Code(props: CodeProps) {
             value={answer}
             rows={linesOfCode}
             onChange={handleChangeAnswer}
-            onKeyPress={handleKeyPressCheckAnswer}
+            onKeyDown={handleKeyDownCheckAnswer}
           ></textarea>
         )}
         <p
@@ -258,41 +123,18 @@ function Code(props: CodeProps) {
           dangerouslySetInnerHTML={{ __html: afterCode }}
         ></p>
       </article>
-      {nextChapterNumber ?
-        <button
-          id="next"
-          type="button"
-          className={
-            isNextButtonPulsing
-              ? "code__button button animate__animated animate__pulse animate__infinite"
-              : "code__button button"
-          }
-          onClick={checkAnswer}
-        >
-          Next Level
-        </button>
-        :
-        <button
-          type="button"
-          className={
-            isNextButtonPulsing
-              ? "code__button button animate__animated animate__pulse animate__infinite"
-              : "code__button button"
-          }
-          onClick={finish}
-        >
-          Finish
-        </button>}
-
-      {createPortal(
-        <Modal open={isGameComplete} className="modal">
-          <h2 className="modal__title">Wanderer,</h2>
-          <p>Congratulations!<br />You've completed the CSS Press game with skill and determination. You've conquered all the challenges and emerged as a true CSS master. Well done!</p>
-          <p>Feel free to replay the game to sharpen your skills even further. Keep up the fantastic work!</p>
-          <footer className="modal__footer">
-            <button className="button" onClick={goToDashboard}>Go to Dashboard</button>
-          </footer>
-        </Modal>, document.body as HTMLBodyElement)}
+      <button
+        id="next"
+        type="button"
+        className={
+          isNextButtonPulsing
+            ? "code__button button animate__animated animate__pulse animate__infinite"
+            : "code__button button"
+        }
+        onClick={onCheck}
+      >
+        {isLastLevel ? "Finish" : "Next Level"}
+      </button>
     </section>
   );
 }

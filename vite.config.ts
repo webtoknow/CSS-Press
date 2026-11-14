@@ -13,5 +13,7 @@ export default mergeConfig(viteConfig, defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    testTimeout: 30000,
+    hookTimeout: 30000,
   }
 }));

@@ -3,11 +3,9 @@
 import "./Article.scss";
 import Style from "../../utils/styleIt";
 import { ArticleContent } from "../article-content/ArticleContent";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 import Toggle from "../toggle/Toggle";
 import { PressmenTools } from "../pressmen-tools/PressmenTools";
-import { TutorialMachineContext } from "../../machines/TutorialMachineContext";
-import { TutorialMachineStates } from "../../machines/tutorialMachine";
 
 interface ArticleProps {
   articleContent: string;
@@ -19,6 +17,8 @@ interface ArticleProps {
   tipInfo: string;
   tipSelector: string;
   extraStyle?: string;
+  isPressmenToolsOpen: boolean;
+  onTogglePressmenTools: (isOpen: boolean) => void;
   onMisprintHoverChange: (isHovered: boolean) => void;
 }
 
@@ -34,6 +34,8 @@ const Article = function Article(props: ArticleProps) {
     tipInfo,
     tipSelector,
     extraStyle,
+    isPressmenToolsOpen,
+    onTogglePressmenTools,
     onMisprintHoverChange
   } = props;
 
@@ -41,23 +43,8 @@ const Article = function Article(props: ArticleProps) {
   const highlightedBefore = hoveredSelector === "misprint" ? "background-color: #f78d2e;" : "";
   const style = `.article__body .misprint { ${errorStyle} ${answerStyle}} .article__body .ripped-effect {${highlighted}} .article__body .ripped-effect:before {${highlightedBefore}}`
   const additionalStyle = `.article__body ${extraStyle}`
-  const unrippedStyle = `.article__body .ripped-effect { position: static; background: none; box-shadow: none; padding: 0; } .article__body .ripped-effect:after { content: none; } .ripped-effect:before { content: none; }`;
+  const unrippedStyle = `.article__body .ripped-effect { position: static; background: none; box-shadow: none; border: none; padding: 0; } .article__body .ripped-effect:after { content: none; } .ripped-effect:before { content: none; }`;
 
-  const [isPressmenToolsOpen, setIsPressmenToolsOpen] = useState(false);
-
-  const { send } = TutorialMachineContext.useActorRef();
-  const currentTutorialState = TutorialMachineContext.useSelector((state) => state);
-
-  useEffect(() => {
-    setIsPressmenToolsOpen(false);
-  },[articleContent])
-
-  useEffect(() => {
-    if (isPressmenToolsOpen && currentTutorialState.matches(TutorialMachineStates.correct)) {
-      send({ type: 'NEXT' });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[isPressmenToolsOpen])
   return (
     <>
       <Style>{style}</Style>
@@ -76,7 +63,7 @@ const Article = function Article(props: ArticleProps) {
           <label className="article__toggle">
             <Toggle
               checked={isPressmenToolsOpen}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setIsPressmenToolsOpen(e.target.checked)} />
+              onChange={(e: ChangeEvent<HTMLInputElement>) => onTogglePressmenTools(e.target.checked)} />
             <span className="article__toggle-tooltip" role="tooltip">Pressmen Tools</span>
           </label>
         </div>
