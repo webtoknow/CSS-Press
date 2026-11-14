@@ -1,6 +1,5 @@
-import { useRef } from "react";
-// @ts-expect-error we don't have types for style-it
-import Style from "style-it";
+import { useRef, type JSX } from "react";
+import Style from "../../utils/styleIt";
 import parse, {
   DOMNode,
   HTMLReactParserOptions,

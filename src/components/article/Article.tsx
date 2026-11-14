@@ -1,11 +1,10 @@
 
 
 import "./Article.scss";
-// @ts-expect-error we don't have types for style-it
-import Style from "style-it";
+import Style from "../../utils/styleIt";
 import { ArticleContent } from "../article-content/ArticleContent";
-import { useEffect, useState } from "react";
-import Toggle from 'react-toggle'
+import { useEffect, useState, type ChangeEvent } from "react";
+import Toggle from "../toggle/Toggle";
 import { PressmenTools } from "../pressmentools/PressmenTools";
 import { TutorialMachineContext } from "../../machines/TutorialMachineContext";
 import { TutorialMachineStates } from "../../machines/tutorialMachine";
@@ -75,8 +74,7 @@ const Article = function Article(props: ArticleProps) {
           <label className="article__toggle">
             <Toggle
               checked={isPressmentoolsOpen}
-              icons={false}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setIsPressmentoolsOpen(e.target.checked)} />
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setIsPressmentoolsOpen(e.target.checked)} />
           </label>
         </div>
         <ArticleContent articleContent={articleContent} tipInfo={tipInfo} tipSelector={tipSelector} isPressmentoolsOpen={isPressmentoolsOpen} />

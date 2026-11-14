@@ -1,3 +1,5 @@
+@use "./variables" as *;
+
 ::-webkit-scrollbar {
     width: 12px;
     background-color: $color-white;

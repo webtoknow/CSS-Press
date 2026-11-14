@@ -12,7 +12,8 @@ type Props = {
 const DialogTutorial = ({ actualState, hideNext, hidePrevious, showFinish }: Props) => {
     const { send } = TutorialMachineContext.useActorRef();
     const state = TutorialMachineContext.useSelector((state) => state);
-    
+    const meta = state.getMeta() as Record<string, { message?: string } | undefined>;
+
     const btnsClass = `tutorial__btns${hidePrevious ? ' tutorial__btns--next' : ''}`
     return (
         <>
@@ -21,7 +22,7 @@ const DialogTutorial = ({ actualState, hideNext, hidePrevious, showFinish }: Pro
             </div>
             <article className={`tutorial__info tutorial__info--${actualState}`}>
                 <img className={`tutorial__arrow tutorial__arrow--${actualState}`} src={arrow} alt="Bouncing arrow" />
-                <p className="tutorial__text" dangerouslySetInnerHTML={{__html: state.getMeta()[`${state.machine.id}.${actualState}`]?.message || ''}}>
+                <p className="tutorial__text" dangerouslySetInnerHTML={{__html: meta[`${state.machine.id}.${actualState}`]?.message || ''}}>
                 </p>
                 {(!hidePrevious || !hideNext || showFinish) && <div className={btnsClass}>
                     {!hidePrevious && <button className='tutorial__button' type='button' onClick={() => send({ type: 'PREV' })}>

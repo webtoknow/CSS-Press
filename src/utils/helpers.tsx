@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import { Element, attributesToProps } from "html-react-parser";
 import { getStorageValue } from "../hooks/useLocalStorage";
 import { IChapter, ILevel } from "../models/Game";

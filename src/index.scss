@@ -1,12 +1,8 @@
-@import "normalize.css";
-/* bring in normalize.css styles */
-@import "./styles/variables";
-@import "animate.css";
-
-@import "./styles/Utils";
-@import "./styles/Button";
-@import "./styles/Scrollbar";
-@import "./styles/ReactToggle";
+@use "./styles/variables" as *;
+@use "./styles/Utils" as *;
+@use "./styles/Button" as *;
+@use "./styles/Scrollbar" as *;
+@use "./styles/ReactToggle" as *;
 
 body {
   margin: 0;
