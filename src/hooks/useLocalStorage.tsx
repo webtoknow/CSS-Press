@@ -28,6 +28,8 @@ export function useLocalStorage<T>(key: string, initialValue: string) {
   };
 
   useEffect(() => {
+    // Keep the in-memory value in sync when the storage key changes.
+    // eslint-disable-next-line react/set-state-in-effect
     setStoredValue(getStorageValue(key, initialValue));
   }, [key, storedValue, initialValue]);
 

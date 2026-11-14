@@ -3,6 +3,7 @@
 import * as puppeteer from 'puppeteer';
 import { goToFistLevel, selectors, skipTutorial } from './actions/gameActions';
 import { chapters } from './../../../src/const/chapters';
+import { getServerUrl } from './../../../startServer';
 
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
@@ -18,7 +19,7 @@ function generateRandomStyle(solutions: string[][]): string {
 beforeAll(async () => {
   browser = await puppeteer.launch();
   page = await browser.newPage();
-  await page.goto('http://localhost:5173', { waitUntil: 'domcontentloaded' });
+  await page.goto(getServerUrl(), { waitUntil: 'domcontentloaded' });
 });
 
 afterAll(async () => {

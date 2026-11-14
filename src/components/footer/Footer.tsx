@@ -2,8 +2,9 @@ import './Footer.scss';
 import  TwitterLogo from './twitter.svg?react';
 import  FacebookLogo from './facebook.svg?react';
 
+const year = new Date().getFullYear();
+
 function Footer() {
-  const year = new Date().getFullYear();
   return (
     <footer className="footer">
       <small className="footer__copyright">Copyright © CSS Press {year}</small>
