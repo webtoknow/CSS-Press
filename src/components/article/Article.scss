@@ -109,12 +109,12 @@
   position: relative;
   height: auto;
   background: $color-white;
+  border-right: 2px solid $color-grey-450;
   box-shadow: 0 0 5px 2px $color-grey-450;
   padding: 5px 3px 0 3px;
-  transition: box-shadow 0.5s ease-in-out;
-  transition: padding 0.5s ease-in-out;
 
   &:hover {
+    border-right-color: $color-orange-400;
     box-shadow: 0 0 5px 2px $color-orange-400;
 
     &:before {
