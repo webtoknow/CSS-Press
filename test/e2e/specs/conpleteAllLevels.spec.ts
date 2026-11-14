@@ -7,6 +7,14 @@ import { chapters } from './../../../src/const/chapters';
 let browser: puppeteer.Browser;
 let page: puppeteer.Page;
 
+function generateRandomStyle(solutions: string[][]): string {
+  return solutions.map(solution => {
+    const property = solution[0];
+    const value = solution[Math.floor(Math.random() * (solution.length - 1)) + 1];
+    return `${property}: ${value}`;
+  }).join('; ') + ';';
+}
+
 beforeAll(async () => {
   browser = await puppeteer.launch();
   page = await browser.newPage();
@@ -25,7 +33,7 @@ describe('Complete All Levels Tests', () => {
       for (const [levelIndex] of chapter.levels.entries()) {
         const selector = `.chapter:nth-of-type(${chapterIndex + 1}) .chapter__body li:nth-child(${levelIndex + 1}) a`;
         console.log(selector);
-        const hash = await page.$eval(selector, (el: any) => el.hash);
+        const hash = await page.$eval(selector, (el: HTMLAnchorElement) => el.hash);
         expect(hash).toBe(`#/chapter/${chapterIndex + 1}/level/${levelIndex + 1}`);
       }
     }
@@ -53,15 +61,6 @@ describe('Complete All Levels Tests', () => {
     
     for (const [chapterIndex, chapter] of chapters.entries()) {
       for (const [levelIndex, level] of chapter.levels.entries()) {
-
-        function generateRandomStyle(solutions: string[][]): string {
-          return solutions.map(solution => {
-            const property = solution[0];
-            const value = solution[Math.floor(Math.random() * (solution.length - 1)) + 1];
-            return `${property}: ${value}`;
-          }).join('; ') + ';';
-        }
-
         await page.waitForSelector('#code', { visible: true });
         await page.locator('#code').fill(generateRandomStyle(level.solutions));
 
@@ -93,14 +92,6 @@ it.skip('should complete first level', async () => {
 
   const chapterIndex = 0;
   const levelIndex = 0;
-  
-  function generateRandomStyle(solutions: string[][]): string {
-    return solutions.map(solution => {
-      const property = solution[0];
-      const value = solution[Math.floor(Math.random() * (solution.length - 1)) + 1];
-      return `${property}: ${value}`;
-    }).join('; ') + ';';
-  }
 
   await page.waitForSelector('#code', { visible: true });
 

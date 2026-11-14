@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-// @ts-expect-error we don't have types for style-it
-import Style from "style-it";
+import Style from "../../utils/styleIt";
 import parse, {
   DOMNode,
   HTMLReactParserOptions,

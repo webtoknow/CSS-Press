@@ -1,8 +1,7 @@
 
 
 import "./Article.scss";
-// @ts-expect-error we don't have types for style-it
-import Style from "style-it";
+import Style from "../../utils/styleIt";
 import { ArticleContent } from "../article-content/ArticleContent";
 import { memo } from "react";
 
