@@ -1,6 +1,6 @@
 import "./Code.scss";
 import { maxNoOfCodeLinesSide } from "../../const/chapters";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
 import { buildSolutionsArray, getCodeLinesSide, isSolutionCorrect } from "../../utils/helpers";
 import { useLocalStorage } from "../../hooks/useLocalStorage";

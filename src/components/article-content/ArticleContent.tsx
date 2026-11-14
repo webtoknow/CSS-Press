@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, type JSX } from "react";
 import Style from "../../utils/styleIt";
 import parse, {
   DOMNode,
