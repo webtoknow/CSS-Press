@@ -35,7 +35,8 @@ function GamePage() {
 
   const [answer, setAnswer] = useLocalStorage<string>(localStorageNames.getLevelAnswer(chapterNumber || '', levelNumber || ''), "");
 
-  const [selector, setSelector] = useState("");
+  const [hoveredSelector, setHoveredSelector] = useState("");
+  const [isArticleMisprintHovered, setIsArticleMisprintHovered] = useState(false);
   const [isArticleSliding, setIsArticleSliding] = useState(false);
   const [isLevelResolved, setIsLevelResolved] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -116,7 +117,7 @@ function GamePage() {
         startHighlightCode={startHighlightCode}
         answer={answer}
         setAnswer={setAnswer}
-        setSelector={setSelector}
+        setHoveredSelector={setHoveredSelector}
         solutions={solutions}
         chapterNumber={chapterNumber || null}
         levelNumber={levelNumber || null}
@@ -125,17 +126,19 @@ function GamePage() {
         setIsArticleSliding={setIsArticleSliding}
         isArticleSliding={isArticleSliding}
         setIsLevelResolved={setIsLevelResolved}
+        isSelectorHighlighted={isArticleMisprintHovered}
       />
       <Article
         articleContent={articleContent}
-        answer={answer}
-        error={error}
-        selector={selector}
+        answerStyle={answer}
+        errorStyle={error}
+        hoveredSelector={hoveredSelector}
         isArticleSliding={isArticleSliding}
         isLevelResolved={isLevelResolved}
         tipInfo={tipInfo}
         tipSelector={tipSelector}
         extraStyle={extraStyle}
+        onMisprintHoverChange={setIsArticleMisprintHovered}
       />
 
       {/* Tutorial */}

@@ -1,7 +1,7 @@
 // /test/e2e/specs/authentication.spec.ts
 
 import * as puppeteer from 'puppeteer';
-import { goToFistLevel, selectors, skipTutorial } from './actions/gameActions';
+import { goToFirstLevel, selectors, skipTutorial } from './actions/gameActions';
 import { chapters } from './../../../src/const/chapters';
 import { getServerUrl } from './../../../startServer';
 
@@ -42,7 +42,7 @@ describe('Complete All Levels Tests', () => {
   });
 
   it('should open tutorial on first level click', async () => {
-    await goToFistLevel(page);
+    await goToFirstLevel(page);
     await page.waitForSelector(selectors.skipTutorial, { visible: true });
     
     const hastag = await page.evaluate(() => window.location.hash);
@@ -57,7 +57,7 @@ describe('Complete All Levels Tests', () => {
 
   // TODO: fix this test
   it.skip('should complete all level', async () => {
-    await goToFistLevel(page);
+    await goToFirstLevel(page);
     await skipTutorial(page);
     
     for (const [chapterIndex, chapter] of chapters.entries()) {
@@ -88,7 +88,7 @@ describe('Complete All Levels Tests', () => {
 
 
 it.skip('should complete first level', async () => {
-  await goToFistLevel(page);
+  await goToFirstLevel(page);
   await skipTutorial(page);
 
   const chapterIndex = 0;

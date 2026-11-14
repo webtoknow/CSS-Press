@@ -1,5 +1,5 @@
 
-export const goToFistLevel = async (page) => {
+export const goToFirstLevel = async (page) => {
   await page.waitForSelector(selectors.firstLevel, { visible: true });
   await page.click(selectors.firstLevel);
 };

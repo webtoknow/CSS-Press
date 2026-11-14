@@ -114,6 +114,14 @@
   transition: box-shadow 0.5s ease-in-out;
   transition: padding 0.5s ease-in-out;
 
+  &:hover {
+    box-shadow: 0 0 5px 2px $color-orange-400;
+
+    &:before {
+      background-color: $color-orange-400;
+    }
+  }
+
   &:before,
   &:after {
     content: "";

@@ -433,4 +433,4 @@ export const chapters: IChapter[] = [
 
 ]
 
-export const maxNoOfCodeLinesSide = 13;
+export const maxCodeLineNumbers = 13;

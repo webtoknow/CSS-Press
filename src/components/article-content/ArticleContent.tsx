@@ -1,4 +1,4 @@
-import { useRef, type JSX } from "react";
+import { useRef, type JSX, type MouseEvent } from "react";
 import Style from "../../utils/styleIt";
 import parse, {
   DOMNode,
@@ -12,10 +12,11 @@ type Props = {
   articleContent: string;
   tipInfo: string;
   tipSelector: string;
-  isPressmentoolsOpen: boolean;
+  isPressmenToolsOpen: boolean;
+  onMisprintHoverChange: (isHovered: boolean) => void;
 };
 
-const options = (tipInfo: string, tipSelector: string) =>
+const createParserOptions = (tipInfo: string, tipSelector: string) =>
 ({
   replace: (domNode: DOMNode) => {
 
@@ -64,17 +65,37 @@ function createArticleContent(
   tipInfo: string,
   tipSelector: string
 ) {
-  return parse(articleContent, options(tipInfo, tipSelector));
+  return parse(articleContent, createParserOptions(tipInfo, tipSelector));
 }
 
-export const ArticleContent = ({ articleContent, tipInfo, tipSelector, isPressmentoolsOpen }: Props) => {
+export const ArticleContent = ({ articleContent, tipInfo, tipSelector, isPressmenToolsOpen, onMisprintHoverChange }: Props) => {
 
   const parentRef = useRef<HTMLInputElement>(null);
   const content = createArticleContent(articleContent, tipInfo, tipSelector);
 
+  const handleMisprintMouseOver = (event: MouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest(".misprint")) {
+      onMisprintHoverChange(true);
+    }
+  };
+
+  const handleMisprintMouseOut = (event: MouseEvent<HTMLElement>) => {
+    const misprint = (event.target as HTMLElement).closest(".misprint");
+    const relatedTarget = event.relatedTarget as Node | null;
+
+    if (misprint && !(relatedTarget && misprint.contains(relatedTarget))) {
+      onMisprintHoverChange(false);
+    }
+  };
+
   return (
-    <section ref={parentRef} className="article__body">
-      {isPressmentoolsOpen && <Style>{'.article__reference { background: #ffca9b }'}</Style>}
+    <section
+      ref={parentRef}
+      className="article__body"
+      onMouseOver={handleMisprintMouseOver}
+      onMouseOut={handleMisprintMouseOut}
+    >
+      {isPressmenToolsOpen && <Style>{'.article__reference { background: #ffca9b }'}</Style>}
       {content}
     </section>
   );

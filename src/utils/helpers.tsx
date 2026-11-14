@@ -8,19 +8,19 @@ export function isNumeric(value: string | undefined): boolean {
   return /^\d+$/.test(value);
 }
 
-export function getCodeLinesSide(
+export function getCodeLineNumbers(
   startHighlightCode: number,
   linesOfCode: number,
-  maxNoOfCodeLinesSide: number
+  maxCodeLineNumbers: number
 ) {
-  const codeLinesSide: JSX.Element[] = [];
+  const codeLineNumbers: JSX.Element[] = [];
 
   const highlightedRows: number[] = [
     startHighlightCode,
     startHighlightCode + linesOfCode,
   ];
 
-  for (let i = 1; i <= maxNoOfCodeLinesSide; i++) {
+  for (let i = 1; i <= maxCodeLineNumbers; i++) {
     let className = "";
     if (i >= highlightedRows[0] && i < highlightedRows[1]) {
       className = "code__numbers--highlight";
@@ -31,13 +31,13 @@ export function getCodeLinesSide(
         className += " code__numbers--last";
       }
     }
-    codeLinesSide.push(
+    codeLineNumbers.push(
       <li key={i} className={className}>
         {i}
       </li>
     );
   }
-  return codeLinesSide;
+  return codeLineNumbers;
 }
 
 export function buildSolutionsArray(solutions: string[][]): string[] {

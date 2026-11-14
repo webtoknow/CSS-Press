@@ -1,8 +1,8 @@
 import "./Code.scss";
-import { maxNoOfCodeLinesSide } from "../../const/chapters";
+import { maxCodeLineNumbers } from "../../const/chapters";
 import { Dispatch, SetStateAction, useEffect, useRef, useState, type JSX } from "react";
 import { useNavigate } from "react-router-dom";
-import { buildSolutionsArray, getCodeLinesSide, isSolutionCorrect } from "../../utils/helpers";
+import { buildSolutionsArray, getCodeLineNumbers, isSolutionCorrect } from "../../utils/helpers";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { TutorialMachineStates } from "../../machines/tutorialMachine";
 import { createPortal } from "react-dom";
@@ -16,7 +16,7 @@ interface CodeProps {
   linesOfCode: number;
   startHighlightCode: number;
   setAnswer: Dispatch<SetStateAction<string>>;
-  setSelector: Dispatch<SetStateAction<string>>;
+  setHoveredSelector: Dispatch<SetStateAction<string>>;
   answer: string;
   solutions: string[][];
   chapterNumber: number | null;
@@ -26,6 +26,7 @@ interface CodeProps {
   isArticleSliding: boolean;
   setIsArticleSliding: Dispatch<SetStateAction<boolean>>;
   setIsLevelResolved: Dispatch<SetStateAction<boolean>>;
+  isSelectorHighlighted: boolean;
 }
 
 function Code(props: CodeProps) {
@@ -36,7 +37,7 @@ function Code(props: CodeProps) {
     startHighlightCode,
     answer,
     setAnswer,
-    setSelector,
+    setHoveredSelector,
     solutions,
     chapterNumber,
     levelNumber,
@@ -45,6 +46,7 @@ function Code(props: CodeProps) {
     isArticleSliding,
     setIsArticleSliding,
     setIsLevelResolved,
+    isSelectorHighlighted,
   } = props;
 
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ function Code(props: CodeProps) {
   const { send } = TutorialMachineContext.useActorRef();
   const currentTutorialState = TutorialMachineContext.useSelector((state) => state);
 
-  const [isHeartBeating, setIsHeartBeating] = useState(false);
+  const [isNextButtonPulsing, setIsNextButtonPulsing] = useState(false);
   const [isCodeShaking, setIsCodeShaking] = useState(false);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [isGameComplete, setIsGameComplete] = useState(false);
@@ -68,7 +70,7 @@ function Code(props: CodeProps) {
     }
 
     if (isSolutionCorrect(solutionsArray, answer)) {
-      setIsHeartBeating(true);
+      setIsNextButtonPulsing(true);
       setIsLevelSolved("true");
       setIsLevelResolved(true);
 
@@ -81,8 +83,8 @@ function Code(props: CodeProps) {
       return;
     }
 
-    if (isHeartBeating === true) {
-      setIsHeartBeating(false);
+    if (isNextButtonPulsing === true) {
+      setIsNextButtonPulsing(false);
       setIsLevelSolved("false");
       setIsLevelResolved(false);
     }
@@ -103,10 +105,10 @@ function Code(props: CodeProps) {
     }
   }, [isArticleSliding]);
 
-  const codeLinesSide: JSX.Element[] = getCodeLinesSide(
+  const codeLineNumbers: JSX.Element[] = getCodeLineNumbers(
     startHighlightCode,
     linesOfCode,
-    maxNoOfCodeLinesSide
+    maxCodeLineNumbers
   );
 
   const calculatedCodeHeight = linesOfCode * 24;
@@ -121,12 +123,12 @@ function Code(props: CodeProps) {
     setAnswer(e.target.value);
   };
 
-  const handleHoverEnter = () => {
-    setSelector("misprint");
+  const handleEditorMouseEnter = () => {
+    setHoveredSelector("misprint");
   };
 
-  const handleHoverLeave = () => {
-    setSelector("");
+  const handleEditorMouseLeave = () => {
+    setHoveredSelector("");
   };
 
   const checkAnswer = () => {
@@ -155,7 +157,7 @@ function Code(props: CodeProps) {
   const goToNextLevelAndSlideOutArticle = () => {
     setIsArticleSliding(true);
     slideTimeoutRef.current = window.setTimeout(() => {
-      setIsHeartBeating(false);
+      setIsNextButtonPulsing(false);
       setIsArticleSliding(false);
       navigate(`/chapter/${nextChapterNumber}/level/${nextLevelNumber}`);
     }, 800);
@@ -205,14 +207,18 @@ function Code(props: CodeProps) {
           : "code"
       }
     >
-      <ul className="code__numbers">{codeLinesSide}</ul>
+      <ul className="code__numbers">{codeLineNumbers}</ul>
       <article
         className="code__focus"
-        onMouseEnter={handleHoverEnter}
-        onMouseLeave={handleHoverLeave}
+        onMouseEnter={handleEditorMouseEnter}
+        onMouseLeave={handleEditorMouseLeave}
       >
         <p
-          className="code__before"
+          className={
+            isSelectorHighlighted
+              ? "code__before code__before--highlight"
+              : "code__before"
+          }
           dangerouslySetInnerHTML={{ __html: beforeCode }}
         ></p>
         {linesOfCode === 1 && (
@@ -244,7 +250,11 @@ function Code(props: CodeProps) {
           ></textarea>
         )}
         <p
-          className="code__after"
+          className={
+            isSelectorHighlighted
+              ? "code__after code__after--highlight"
+              : "code__after"
+          }
           dangerouslySetInnerHTML={{ __html: afterCode }}
         ></p>
       </article>
@@ -253,7 +263,7 @@ function Code(props: CodeProps) {
           id="next"
           type="button"
           className={
-            isHeartBeating
+            isNextButtonPulsing
               ? "code__button button animate__animated animate__pulse animate__infinite"
               : "code__button button"
           }
@@ -265,7 +275,7 @@ function Code(props: CodeProps) {
         <button
           type="button"
           className={
-            isHeartBeating
+            isNextButtonPulsing
               ? "code__button button animate__animated animate__pulse animate__infinite"
               : "code__button button"
           }
