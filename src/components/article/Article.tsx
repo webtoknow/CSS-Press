@@ -77,6 +77,7 @@ const Article = function Article(props: ArticleProps) {
             <Toggle
               checked={isPressmenToolsOpen}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setIsPressmenToolsOpen(e.target.checked)} />
+            <span className="article__toggle-tooltip" role="tooltip">Pressmen Tools</span>
           </label>
         </div>
         <ArticleContent
